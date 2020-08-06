@@ -1,0 +1,19 @@
+TRANSACTION LISTING REPORT
+02/14/2020  Department Store    Macys               $73.68     (Return in 30 days)
+05/01/2020  Grocery             Safeway             $76.38
+04/30/2020  Grocery             Lucky               $82.03
+03/27/2020  Banking             CASH withdraw       $104.00    <<<$100.00 amount and $4.00 charge
+02/28/2020  Department Store    Target              $34.24     (Return in 60 days)
+04/11/2020  Banking             ATM withdraw        $406.00    <<<$400.00 amount and $6.00 charge
+02/19/2020  Grocery             Safeway             $119.20
+06/18/2020  Grocery             Trader Joe's        $32.84
+04/12/2020  Department Store    Marshalls           $93.42     (Return in 30 days)
+
+Total charges: $10.0
+
+Rewards summary for Maya 4567
+Previous points balance                                100.0
++Points earned on department store purchases           604.02
++Points earned on grocery store purchases              1552.25
+---------------------------------------------------------------
+=Total points available for redemption                 2256.27

@@ -1,0 +1,541 @@
+// @version1.0 07-18-2020
+// @author Maya Itty
+//  File name: TransactionAnalyzer.java
+//  Program purpose: this program allows customers to analyze their credit card
+//// transactions at grocery stores, department stores, and banks
+//  Revision history:
+//   Date                  Programmer          Change ID      Description
+//   07/18/2020            Maya Itty           0000           Initial implementation
+
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.*;
+import java.util.Arrays;
+
+public class CreditCardTransactionAnalyzer {
+    public static void main(String[] args) {
+        Customer customer = new Customer("Maya", "1234234534564567",
+                1000, 100);
+        customer.readTransactions("src/CustomerTransactions.txt");
+        customer.reportTransactions();
+        customer.reportBankingCharges();
+        customer.reportRewardSummary();
+    }
+}
+
+public abstract class Transaction {
+
+    // protected instance fields
+    protected int transactionID;
+    protected Date date;
+    protected double transactionAmount;
+
+    // default constructor
+    public Transaction() {
+        this.transactionID = 0;
+        this.date = new Date(1, 1, 1970);
+        this.transactionAmount = 0.0;
+    }
+
+    // non-default constructor
+    public Transaction(int transactionID, int month, int day, int year, double transactionAmount) {
+        this.transactionID = transactionID;
+        this.date = new Date(month, day, year);
+        this.transactionAmount = transactionAmount;
+    }
+
+    // accessor methods
+    public int getTransactionID() {
+        return transactionID;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public double getTransactionAmount() {
+        return transactionAmount;
+    }
+
+    // mutator methods
+    public void setTransactionID(int transactionID) {
+        this.transactionID = transactionID;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setTransactionAmount(double transactionAmount) {
+        this.transactionAmount = transactionAmount;
+    }
+
+    // abstract method which outputs transaction information to the console
+    public abstract void list();
+
+    // returns a String of transaction date, transaction id and transaction amount
+    @Override
+    public String toString() {
+        return this.date.toString() + "~" +
+                this.transactionID + "~" +
+                this.transactionAmount;
+    }
+
+    // checks if two transactions are equal by comparing transactionID
+    public boolean equals(Transaction o) {
+        return this.transactionID == o.transactionID;
+    }
+}
+
+public class Date implements Comparable<Date>, Cloneable {
+
+    // private instance fields
+    private int month;
+    private int day;
+    private int year;
+
+    // default constructor
+    public Date() {
+        this.month = 1;
+        this.day = 1;
+        this.year = 1970;
+    }
+
+    // non-default constructor
+    public Date(int month, int day, int year) {
+        if (month < 1 || month > 12) {
+            new Date();
+        }
+        else if (day < 1 || day > 31) {
+            new Date();
+        }
+        else if (year < 1970) {
+            new Date();
+        }
+        else {
+            this.month = month;
+            this.day = day;
+            this.year = year;
+        }
+    }
+
+    // accessor methods
+    public int getMonth() {
+        return month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    //mutator methods
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    // returns a String in the form mm/dd/yyyy
+    public String toString() {
+        String monthString;
+        String dayString;
+        String yearString = String.valueOf(this.year);
+        if (month < 10) {
+            monthString = "0" + String.valueOf(month);
+        }
+        else {
+            monthString = String.valueOf(month);
+        }
+        if (day < 10) {
+            dayString = "0" + String.valueOf(day);
+        }
+        else {
+            dayString = String.valueOf(day);
+        }
+        return monthString + "/" + dayString + "/" + yearString;
+    }
+
+    // checks if two Date objects have the same month, day, and year
+    public boolean equals(Date o) {
+        return this.month == o.month &&
+                this.day == o.day && this.year == o.year;
+    }
+
+    // clones an object and returns a Date object
+    public Date clone() throws CloneNotSupportedException {
+        return (Date) super.clone();
+    }
+
+
+    // compares two date objects
+    public int compareTo(Date o) {
+        if (this.equals(o)) {
+            return 0;
+        }
+        if (o.year > this.year) {
+            return 1;
+        }
+        else if (o.year < this.year) {
+            return -1;
+        }
+        else {
+            if (o.month > this.month) {
+                return 1;
+            }
+            else if (o.month < this.month) {
+                return -1;
+            }
+            else {
+                if (o.day > this.day) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            }
+        }
+    }
+}
+
+public class DepartmentStoreTransaction extends Transaction implements Rewardable {
+    // private instance fields
+    private String departmentName;
+    private int returnPolicy;
+
+    // default constructor
+    public DepartmentStoreTransaction() {
+        super();
+        this.departmentName = "";
+        this.returnPolicy = 30;
+    }
+
+    // non-default constructor
+    public DepartmentStoreTransaction(int transactionID, int month, int day, int year,
+                                      double transactionAmount, String departmentName,int returnPolicy) {
+        super(transactionID, month, day, year, transactionAmount);
+        this.departmentName = departmentName;
+        this.returnPolicy = returnPolicy;
+    }
+
+    // accessor methods
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public int getReturnPolicy() {
+        return returnPolicy;
+    }
+
+    // mutator methods
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public void setReturnPolicy(int returnPolicy) {
+        this.returnPolicy = returnPolicy;
+    }
+
+    // returns a String containing transaction type, date,
+    // ID, amount, department, and return policy
+    public String toString() {
+        return "DS~" + super.toString() + "~" +
+                departmentName + "~" + returnPolicy + " days";
+    }
+
+    // implements the list method from Transaction
+    // prints transaction information
+    @Override
+    public void list() {
+        System.out.printf("%-12s%-20s%-20s$%-10.2f(Return in %d days)\n", date.toString(),
+                "Department Store", departmentName, transactionAmount, returnPolicy);
+    }
+
+    // implements the earnPoints method from Rewardable
+    // 3 points per $1
+    @Override
+    public double earnPoints(double amount) {
+        return amount*3;
+    }
+}
+
+public class BankingTransaction extends Transaction {
+    // private instance fields
+    private boolean type;
+    private double charge;
+
+    // default constructor
+    public BankingTransaction() {
+        super();
+        this.type = false;
+        this.charge = 0;
+    }
+
+    // non-default constructor
+    public BankingTransaction(int transactionID, int month, int day, int year,
+                              double transactionAmount, boolean type, double charge) {
+        super(transactionID, month, day, year, transactionAmount);
+        this.type = type;
+        this.charge = charge;
+    }
+
+    // accessor methods
+    public boolean getType() {
+        return type;
+    }
+
+    public double getCharge() {
+        return charge;
+    }
+
+    // mutator methods
+    public void setType(boolean type) {
+        this.type = type;
+    }
+
+    public void setCharge(double charge) {
+        this.charge = charge;
+    }
+
+    // uses the boolean type instance field to set the type to CASH or ATM
+    public String getTypeString() {
+        if (!type) {
+            return "CASH";
+        }
+        else {
+            return "ATM";
+        }
+    }
+
+    // returns a String containing transaction type, date, ID,
+    // amount, type, and charge
+    public String toString() {
+        return "BK~" + super.toString() + "~" +
+                getTypeString() + "~" + charge;
+    }
+
+    // prints transaction information
+    @Override
+    public void list() {
+        System.out.printf("%-12s%-20s%-20s$%-10.2f<<<$%.2f amount and $%.2f charge\n", date.toString(),
+                "Banking", getTypeString()+" withdraw", (transactionAmount+charge), transactionAmount, charge);
+    }
+}
+
+public class GroceryTransaction extends Transaction implements Rewardable{
+    // private instance field
+    private String storeName;
+
+    // default constructor
+    public GroceryTransaction() {
+        super();
+        this.storeName = "";
+    }
+
+    // non-default constructor
+    public GroceryTransaction(int transactionID, int month, int day, int year,
+                              double transactionAmount, String storeName) {
+        super(transactionID, month, day, year, transactionAmount);
+        this.storeName = storeName;
+    }
+
+    // accessor method
+    public String getStoreName() {
+        return storeName;
+    }
+
+    // mutator method
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    // returns a String containing transaction type, date, ID,
+    // amount, type, and charge
+    public String toString() {
+        return "GR~" + super.toString() + "~" + storeName;
+    }
+
+    // implements the list method from Transaction
+    // prints transaction information
+    @Override
+    public void list() {
+        System.out.printf("%-12s%-20s%-20s$%-10.2f\n", date.toString(),
+                "Grocery", storeName, transactionAmount);
+    }
+
+    // implements the earnPoints method from Rewardable
+    // 5 points per $1
+    @Override
+    public double earnPoints(double amount) {
+        return amount*5;
+    }
+}
+
+public interface Rewardable {
+    public double earnPoints(double amount);
+}
+
+public class Customer {
+    private static final int maxSize = 100;
+
+    // private instance fields
+    private String customerName;
+    private String creditCardNumber;
+    private double totalBalance;
+    private double rewardPointsBalance;
+    private Transaction[] transactions;
+    private Rewardable[] rewardables;
+
+    // default constructor
+    public Customer() {
+        this.customerName = "John Doe";
+        this.creditCardNumber = "1111222233334444";
+        this.totalBalance = 0.0;
+        this.rewardPointsBalance = 1000.0;
+        this.transactions = new Transaction[maxSize];
+        this.rewardables = new Rewardable[maxSize];
+        Arrays.fill(transactions, null);
+        Arrays.fill(rewardables, null);
+    }
+
+    // non-default constructor
+    public Customer(String customerName, String creditCardNumber,
+                    double totalBalance, double rewardPointsBalance) {
+        this.customerName = customerName;
+        this.creditCardNumber = creditCardNumber;
+        this.totalBalance = totalBalance;
+        this.rewardPointsBalance = rewardPointsBalance;
+        this.transactions = new Transaction[maxSize];
+        this.rewardables = new Rewardable[maxSize];
+        Arrays.fill(transactions, null);
+        Arrays.fill(rewardables, null);
+    }
+
+    // reads transactions from a provided file to populate the transactions array and
+    // rewardable array
+    public void readTransactions(String fileName) {
+        Path inputFilePath = Paths.get(fileName);
+        BufferedReader reader;
+        String line;
+        int index = 0;
+        try {
+            reader =  Files.newBufferedReader(inputFilePath, StandardCharsets.US_ASCII);
+            while ((line = reader.readLine ()) != null) {
+                addTransaction(line, index++);
+            }
+            reader.close ();
+        } catch (IOException e)  {
+            e.printStackTrace ();
+        }
+        int rewardableIndex = 0;
+        for (Transaction transaction : transactions) {
+            if (transaction instanceof Rewardable) {
+                rewardables[rewardableIndex++] = (Rewardable) transaction;
+            }
+        }
+    }
+
+    // helper method for readTransactions which instantiates new transaction objects
+    // (banking, grocery, or department store) and adds them to the transactions array
+    public void addTransaction(String line, int index) {
+        String type;
+        int month;
+        int day;
+        int year;
+        int transactionID;
+        double transactionAmount;
+
+        String[] data = line.split ("~");
+        type = data[0];
+        String[] date = data[1].split("/");
+        month = Integer.parseInt(date[0]);
+        day = Integer.parseInt(date[1]);
+        year = Integer.parseInt(date[2]);
+        transactionID = Integer.parseInt(data[2]);
+        transactionAmount = Double.parseDouble(data[3]);
+
+        switch (type) {
+            case "DS" -> {
+                String departmentName;
+                int returnPolicy;
+                departmentName = data[4];
+                returnPolicy = Integer.parseInt(data[5]);
+                transactions[index] = new DepartmentStoreTransaction(transactionID,
+                        month, day, year, transactionAmount, departmentName, returnPolicy);
+            }
+            case "BK" -> {
+                boolean bankTransactionType;
+                double charge;
+                bankTransactionType = !data[4].equals("CASH");
+                charge = Double.parseDouble(data[5]);
+                transactions[index] = new BankingTransaction(transactionID, month, day,
+                        year, transactionAmount, bankTransactionType, charge);
+            }
+            case "GR" -> {
+                String storeName;
+                storeName = data[4];
+                transactions[index] = new GroceryTransaction(transactionID, month, day,
+                        year, transactionAmount, storeName);
+            }
+        }
+    }
+
+    // prints all transactions
+    public void reportTransactions() {
+        System.out.println("TRANSACTION LISTING REPORT");
+        for (Transaction transaction : transactions) {
+            if (transaction == null) {
+                break;
+            }
+            transaction.list();
+        }
+    }
+
+    // prints all banking charges
+    public void reportBankingCharges() {
+        double totalCharges = 0;
+        for (Transaction transaction : transactions) {
+            if (transaction instanceof BankingTransaction) {
+                totalCharges += ((BankingTransaction) transaction).getCharge();
+            }
+        }
+        System.out.println("\nTotal charges: $" + totalCharges);
+    }
+
+    // prints previous reward points balance, department store rewards points,
+    // grocery store rewards points, and total points available for redemption
+    public void reportRewardSummary() {
+        double departmentStorePoints = 0;
+        double groceryStorePoints = 0;
+        System.out.println("\nRewards summary for " + customerName + " " +
+                creditCardNumber.substring(12));
+        System.out.println("Previous points balance                                "
+                + rewardPointsBalance);
+        for (Rewardable transaction : rewardables) {
+            if (((Transaction) transaction) instanceof GroceryTransaction) {
+                groceryStorePoints += transaction.earnPoints(((Transaction) transaction)
+                        .getTransactionAmount());
+            }
+            else if (((Transaction) transaction) instanceof DepartmentStoreTransaction) {
+                departmentStorePoints += transaction.earnPoints(((Transaction) transaction)
+                        .getTransactionAmount());
+            }
+        }
+        System.out.println("+Points earned on department store purchases           "
+                + departmentStorePoints);
+        System.out.println("+Points earned on grocery store purchases              "
+                + groceryStorePoints);
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("=Total points available for redemption                 "
+                + (groceryStorePoints+departmentStorePoints+this.rewardPointsBalance));
+    }
+}
